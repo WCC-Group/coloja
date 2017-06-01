@@ -21,7 +21,7 @@ public class LombokValidator
 
 			try
 			{
-				classDefinition = Heuristics.isLombokPojo(className);
+				classDefinition = Heuristics.isLombokGeneratedObject(className);
 			}
 			catch (ClassNotFoundException | NoClassDefFoundError e)
 			{
@@ -60,12 +60,12 @@ public class LombokValidator
 	{
 		if (Heuristics.isImmutable(clazz))
 		{
-			log.info("{} should be an immutable pojo", clazz);
+			log.info("Lombok Value Class: {}", clazz);
 			ValueClassValidator.validate(clazz);
 		}
 		else
 		{
-			log.info("{} should be a mutable pojo", clazz);
+			log.info("Lombok Data Class: {}", clazz);
 			DataClassValidator.validate(clazz);
 		}
 	}

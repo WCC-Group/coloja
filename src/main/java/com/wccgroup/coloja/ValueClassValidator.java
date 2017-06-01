@@ -39,7 +39,7 @@ public class ValueClassValidator
 			}
 			else if (method.getName().startsWith("set"))
 			{
-				fail(String.format("Immutable pojos may not have setters, found %s", method.getName()));
+				fail(String.format("Immutable objects may not have setters, found %s", method.getName()));
 			}
 			else if (SpecialMembers.HASH_CODE.equals(method.getName()))
 			{
@@ -82,7 +82,7 @@ public class ValueClassValidator
 	private static void validateFromFields(Class<?> clazz)
 		throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException
 	{
-		// We're testing a pojo, so make use of a high level commons-beanutils to intepret the fields as properties and
+		// We're testing a lombok object, so make use of a high level commons-beanutils to intepret the fields as properties and
 		// validate they behave as we expect them to.
 		// It is a bit hairy, as the property names use a different casing from the constructor properties.
 

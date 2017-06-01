@@ -15,16 +15,16 @@ public class Heuristics
 	 * <p>
 	 * 1. Only non-static, non-public fields
 	 * 2. Not a test class
-	 * 3. No fields start with _ (notice that here sonar really helps as it only allows this for lombok pojos.
+	 * 3. No fields start with _ (notice that here sonar really helps as it only allows this for lombok object.
 	 * 4. Has a canEqual method OR ConstructorProperties annotation on the constructor.
 	 * <p>
-	 * canEqual is generated for mutable pojos, not for @Value classes, that is why we also check for ConstructorProperties.
+	 * canEqual is generated for @Data lombok objects, not for @Value classes, that is why we also check for ConstructorProperties.
 	 *
 	 * @param className
 	 * @return
 	 * @throws ClassNotFoundException
 	 */
-	public static Class<?> isLombokPojo(String className) throws ClassNotFoundException
+	public static Class<?> isLombokGeneratedObject(String className) throws ClassNotFoundException
 	{
 		Class<?> classDefinition = Class.forName(className); // NOSONAR
 
@@ -77,8 +77,8 @@ public class Heuristics
 	}
 
 	/**
-	 * Differentiates beween mutable and immutable lombok pojos. Assumes that this class is already detected as lombok pojo. We
-	 * assume the class is an immutable pojo iff
+	 * Differentiates beween mutable and immutable lombok object. Assumes that this class is already detected as lombok object. We
+	 * assume the class is an immutable object iff
 	 * <p>
 	 * 1. It has 1 constructor
 	 * 2. It's only constructor has 1 or more parameters
@@ -89,10 +89,11 @@ public class Heuristics
 	 */
 	public static boolean isImmutable(Class<?> clazz)
 	{
-		if (clazz.getConstructors().length == 1)
-		{
-			Constructor constructor = clazz.getConstructors()[0];
+		Constructor[] constructors = clazz.getDeclaredConstructors();
 
+		if (constructors.length == 1)
+		{
+			Constructor constructor = constructors[0];
 			long requiredParameters = constructor.getParameterCount();
 
 			Field[] fields = clazz.getDeclaredFields();

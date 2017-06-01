@@ -92,7 +92,7 @@ public class DataClassValidator
 	private static void validateFromProperties(Class<?> clazz, Object instance)
 		throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException
 	{
-		// We're testing a pojo, so make use of a high level commons-beanutils to intepret the fields as properties and
+		// We're testing a lombok object, so make use of a high level commons-beanutils to intepret the fields as properties and
 		// validate they behave as we expect them to.
 		PropertyDescriptor[] properties = PropertyUtils.getPropertyDescriptors(clazz);
 
@@ -143,7 +143,7 @@ public class DataClassValidator
 	}
 
 	/**
-	 * Test a single property, evaluating all sane use-cases for .equals. Starts with an 'empty' pojo (everything null/default
+	 * Test a single property, evaluating all sane use-cases for .equals. Starts with an 'empty' lombok object (everything null/default
 	 * value so that .equals() returns true). Then mutates the values for the single property and validates the .equals behavior.
 	 */
 	private static void validateEquals(

@@ -1,6 +1,9 @@
 # coloja
 Helper library to improve code coverage and mutation testing when using Lombok, jacoco and pitest.
 
+# Build status
+
+[![Build Status](https://travis-ci.org/WCC-Group/coloja.svg?branch=master)](https://travis-ci.org/WCC-Group/coloja)
 
 ## Use case
 

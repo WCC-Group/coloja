@@ -7,7 +7,9 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.*;
 import org.mockito.Mockito;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ObjectBuilder
 {
 	private static final List<Class> SIMPLE_TYPES = Arrays.asList(

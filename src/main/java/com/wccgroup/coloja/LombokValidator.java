@@ -11,6 +11,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class LombokValidator
 {
+	/**
+	 * Picks up all classes in the provided namespace and sub-namespaces. Each class is checked with some heuristics. If the
+	 * library thinks it is a class generated through an @Value or @Data annotation, it hands it off to the DataClassValidator or
+	 * ValueClassValidator. These in turn generate as much coverage as possible, as well as doing some validation.
+	 * <p>
+	 * An assertion failure will trigger when no objects are found.
+	 *
+	 * @param namespacePrefix The root namespace from where to start looking for lombok annotated objects.
+	 * @return A list of all Classes that have been processed.
+	 */
 	public static List<Class> autoValidate(String namespacePrefix)
 	{
 		List<Class> validatedClasses = new ArrayList<>();
@@ -33,7 +43,7 @@ public class LombokValidator
 			{
 				try
 				{
-					log.info("Validating '{}' because it appears to be a lombok object.", className);
+					log.debug("Validating '{}' because it appears to be a lombok object.", className);
 					validate(classDefinition);
 					validatedClasses.add(classDefinition);
 				}
@@ -52,20 +62,30 @@ public class LombokValidator
 
 		assertThat("Expect at least 1 lombok object", validatedClasses.size(), org.hamcrest.Matchers.greaterThan(0));
 
+		log.info("Automatically validated {} classes", validatedClasses.size());
+
 		return validatedClasses;
 	}
 
+	/**
+	 * @param clazz The class to validate. It will both trigger the coverage generator as well as doing some validation on the
+	 *                 object itself.
+	 * @throws InvocationTargetException
+	 * @throws NoSuchMethodException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
 	public static void validate(Class<?> clazz)
 		throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException
 	{
 		if (Heuristics.isImmutable(clazz))
 		{
-			log.info("Lombok Value Class: {}", clazz);
+			log.debug("Lombok Value Class: {}", clazz);
 			ValueClassValidator.validate(clazz);
 		}
 		else
 		{
-			log.info("Lombok Data Class: {}", clazz);
+			log.debug("Lombok Data Class: {}", clazz);
 			DataClassValidator.validate(clazz);
 		}
 	}

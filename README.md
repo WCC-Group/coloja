@@ -9,3 +9,7 @@ Generated code through lombok doesn't get full coverage from your unit tests mos
 ## Known issues
 
 Objects with @Value and @Builder will only be picked up when they are generated with lombok 1.16.16 or later.
+
+## The name?
+
+COverage for LOmbok generated code with JAcoco.

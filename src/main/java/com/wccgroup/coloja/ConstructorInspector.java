@@ -1,6 +1,7 @@
 package com.wccgroup.coloja;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.Collectors;
@@ -12,7 +13,7 @@ public class ConstructorInspector
 	// Heuristics. The one with the least amount of arguments is the best one.
 	public static Constructor getBestConstructor(Class<?> clazz)
 	{
-		Constructor[] constructors = clazz.getConstructors();
+		Constructor[] constructors = clazz.getDeclaredConstructors();
 		Constructor theConstructor = null;
 
 		if (constructors.length == 1)
@@ -31,6 +32,12 @@ public class ConstructorInspector
 				.sorted(Comparator.comparing(c -> c.getParameterCount()))
 				.collect(Collectors.toList())
 				.get(0);
+		}
+
+		if (!Modifier.isPublic(theConstructor.getModifiers()))
+		{
+			log.debug("Making constructor of {} accessible.", clazz.getName());
+			theConstructor.setAccessible(true);
 		}
 
 		return theConstructor;

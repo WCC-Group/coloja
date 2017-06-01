@@ -1,5 +1,7 @@
 package com.wccgroup.coloja.lombokobjects;
 
-public class AnEnum
+public enum AnEnum
 {
+	VALUE1,
+	VALUE2
 }

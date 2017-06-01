@@ -10,7 +10,7 @@
 
 	<name>CoLoJa</name>
 	<description>Helper class to improve code coverage for lombok annotatated Data and Value classes</description>
-
+	<url>https://github.com/WCC-Group/coloja</url>
 	<inceptionYear>2017</inceptionYear>
 
 	<organization>

@@ -21,12 +21,20 @@ public class Heuristics
 	 * canEqual is generated for @Data lombok objects, not for @Value classes, that is why we also check for ConstructorProperties.
 	 *
 	 * @param className Name of class to check
-	 * @return <c>true</c> when class is generated with lombok
-	 * @throws ClassNotFoundException Thrown when className does not exist
+	 * @return true when class is generated with lombok
 	 */
-	public static Class<?> isLombokGeneratedObject(String className) throws ClassNotFoundException
+	public static Class<?> isLombokGeneratedObject(String className)
 	{
-		Class<?> classDefinition = Class.forName(className); // NOSONAR
+		Class<?> classDefinition = null;
+
+		try
+		{
+			classDefinition = Class.forName(className);
+		}
+		catch (ClassNotFoundException e)
+		{
+			ExceptionToFailure.handle(e, className);
+		}
 
 		// Test class
 		if (classDefinition.getName().endsWith("Test") || classDefinition.getName().endsWith("IT"))
@@ -85,7 +93,7 @@ public class Heuristics
 	 * 3. The number of final fields equals the number of constructor parameters.
 	 *
 	 * @param clazz Name of class to check
-	 * @return <c>true</c> when class is immutable (annotated with @Value).
+	 * @return true when class is immutable (annotated with @Value).
 	 */
 	public static boolean isImmutable(Class<?> clazz)
 	{

@@ -33,7 +33,7 @@ public class LombokValidator
 			{
 				classDefinition = Heuristics.isLombokGeneratedObject(className);
 			}
-			catch (ClassNotFoundException | NoClassDefFoundError e)
+			catch (NoClassDefFoundError e)
 			{
 				log.debug("Not validating '" + className + "' because the class could not be loaded: " + e.getMessage(), e);
 				continue;

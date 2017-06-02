@@ -24,7 +24,7 @@ public class LombokValidatorTest
 
 	@Test
 	// This test will only succeed with lombok 1.16.16 or later.
-	public void shouldBeDetected() throws ClassNotFoundException
+	public void shouldBeDetected()
 	{
 		Constructor[] constructors = BuildableValue.class.getDeclaredConstructors();
 		ConstructorProperties props = (ConstructorProperties)constructors[0].getAnnotation(ConstructorProperties.class);

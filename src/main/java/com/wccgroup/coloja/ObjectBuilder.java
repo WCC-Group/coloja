@@ -30,7 +30,6 @@ public class ObjectBuilder
 	}
 
 	public static Object createValue(Class<?> propertyType, ValueSet valueSet)
-		throws IllegalAccessException, InvocationTargetException, InstantiationException
 	{
 		if (propertyType.isAssignableFrom(Boolean.class) ||
 			propertyType.isAssignableFrom(boolean.class))
@@ -150,14 +149,12 @@ public class ObjectBuilder
 	}
 
 	public static Object createInstance(Class<?> objectType)
-		throws IllegalAccessException, InstantiationException, InvocationTargetException
 	{
 		return createInstance(objectType, false);
 	}
 
 	@SuppressWarnings("rawtypes")
 	public static Object createInstance(Class<?> objectType, boolean allowProxy)
-		throws IllegalAccessException, InvocationTargetException, InstantiationException
 	{
 		if (SIMPLE_TYPES.stream().anyMatch(simpleType -> objectType.isAssignableFrom(simpleType)))
 		{
@@ -216,7 +213,14 @@ public class ObjectBuilder
 			if (theConstructor.getParameterCount() == 0)
 			{
 				// Trivial constructor, yay.
-				return theConstructor.newInstance();
+				try
+				{
+					return theConstructor.newInstance();
+				}
+				catch (InstantiationException | IllegalAccessException | InvocationTargetException e)
+				{
+					ExceptionToFailure.handle(e, objectType);
+				}
 			}
 			else
 			{
@@ -239,8 +243,17 @@ public class ObjectBuilder
 					theParameters.add(createInstance(parameterType, true));
 				}
 
-				return theConstructor.newInstance(theParameters.toArray());
+				try
+				{
+					return theConstructor.newInstance(theParameters.toArray());
+				}
+				catch (InstantiationException | IllegalAccessException | InvocationTargetException e)
+				{
+					ExceptionToFailure.handle(e, objectType);
+				}
 			}
+
+			return null; // Never hit
 		}
 	}
 }

@@ -69,11 +69,11 @@ public class LombokValidator
 
 	/**
 	 * @param clazz The class to validate. It will both trigger the coverage generator as well as doing some validation on the
-	 *                 object itself.
-	 * @throws InvocationTargetException
-	 * @throws NoSuchMethodException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
+	 *              object itself.
+	 * @throws InvocationTargetException thrown when the validation fails
+	 * @throws NoSuchMethodException     thrown when the validation fails
+	 * @throws InstantiationException    thrown when the validation fails
+	 * @throws IllegalAccessException    thrown when the validation fails
 	 */
 	public static void validate(Class<?> clazz)
 		throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException

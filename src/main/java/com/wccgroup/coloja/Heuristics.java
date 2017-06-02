@@ -22,11 +22,19 @@ public class Heuristics
 	 *
 	 * @param className Name of class to check
 	 * @return <c>true</c> when class is generated with lombok
-	 * @throws ClassNotFoundException Thrown when className does not exist
 	 */
-	public static Class<?> isLombokGeneratedObject(String className) throws ClassNotFoundException
+	public static Class<?> isLombokGeneratedObject(String className)
 	{
-		Class<?> classDefinition = Class.forName(className); // NOSONAR
+		Class<?> classDefinition = null;
+
+		try
+		{
+			classDefinition = Class.forName(className);
+		}
+		catch (ClassNotFoundException e)
+		{
+			ExceptionToFailure.handle(e, className);
+		}
 
 		// Test class
 		if (classDefinition.getName().endsWith("Test") || classDefinition.getName().endsWith("IT"))

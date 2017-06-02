@@ -15,14 +15,20 @@ import org.mockito.Mockito;
 public class ValueClassValidator
 {
 	public static void validate(Class<?> clazz)
-		throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException
 	{
-		// Just poke the thing
-		invokeAllArgsConstructor(clazz);
+		try
+		{
+			// Just poke the thing
+			invokeAllArgsConstructor(clazz);
 
-		Object instance = ObjectBuilder.createInstance(clazz);
-		validateFromMethods(clazz, instance);
-		validateFromFields(clazz);
+			Object instance = ObjectBuilder.createInstance(clazz);
+			validateFromMethods(clazz, instance);
+			validateFromFields(clazz);
+		}
+		catch (Exception e)
+		{
+			ExceptionToFailure.handle(e, clazz);
+		}
 	}
 
 	private static void validateFromMethods(Class<?> clazz, Object instance)

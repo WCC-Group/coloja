@@ -10,7 +10,7 @@ import org.junit.Test;
 public class ObjectBuilderTest
 {
 	@Test
-	public void shouldCreatePrimitiveInstances() throws IllegalAccessException, InstantiationException, InvocationTargetException
+	public void shouldCreatePrimitiveInstances()
 	{
 		for (Class clazz : Arrays.asList(
 			boolean.class, Boolean.class,
@@ -36,7 +36,6 @@ public class ObjectBuilderTest
 
 	@Test
 	public void shouldCreateDifferentPrimitiveInstances()
-		throws IllegalAccessException, InstantiationException, InvocationTargetException
 	{
 		for (Class clazz : Arrays.asList(
 			boolean.class, Boolean.class,

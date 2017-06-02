@@ -17,15 +17,21 @@ import lombok.extern.slf4j.Slf4j;
 public class DataClassValidator
 {
 	public static void validate(Class<?> clazz)
-		throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException
 	{
-		invokeAllArgsConstructors(clazz);
+		try
+		{
+			invokeAllArgsConstructors(clazz);
 
-		Constructor<?> constructor = clazz.getConstructor();
-		Object instance = constructor.newInstance();
+			Constructor<?> constructor = clazz.getConstructor();
+			Object instance = constructor.newInstance();
 
-		validateFromMethods(clazz, instance);
-		validateFromProperties(clazz, instance);
+			validateFromMethods(clazz, instance);
+			validateFromProperties(clazz, instance);
+		}
+		catch (Exception e)
+		{
+			ExceptionToFailure.handle(e, clazz);
+		}
 	}
 
 	/**
@@ -33,7 +39,7 @@ public class DataClassValidator
 	 * on a few special ones.
 	 */
 	private static void validateFromMethods(Class<?> clazz, Object instance)
-		throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException
+		throws InvocationTargetException, IllegalAccessException, InstantiationException, NoSuchMethodException
 	{
 		for (Method method : clazz.getDeclaredMethods())
 		{
@@ -90,7 +96,7 @@ public class DataClassValidator
 	 * Use commons-beanutils to do the basic setFoo(bar) -> getFoo() == bar validation.
 	 */
 	private static void validateFromProperties(Class<?> clazz, Object instance)
-		throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException
+		throws IllegalAccessException, InstantiationException, InvocationTargetException
 	{
 		// We're testing a lombok object, so make use of a high level commons-beanutils to intepret the fields as properties and
 		// validate they behave as we expect them to.
@@ -121,7 +127,7 @@ public class DataClassValidator
 	 * Test all properties, making sure that the .equals behavior is correct.
 	 */
 	private static void validateEquals(final Class<?> clazz)
-		throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException
+		throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException
 	{
 		PropertyDescriptor[] properties = PropertyUtils.getPropertyDescriptors(clazz);
 
@@ -143,7 +149,8 @@ public class DataClassValidator
 	}
 
 	/**
-	 * Test a single property, evaluating all sane use-cases for .equals. Starts with an 'empty' lombok object (everything null/default
+	 * Test a single property, evaluating all sane use-cases for .equals. Starts with an 'empty' lombok object (everything
+	 * null/default
 	 * value so that .equals() returns true). Then mutates the values for the single property and validates the .equals behavior.
 	 */
 	private static void validateEquals(
@@ -151,7 +158,7 @@ public class DataClassValidator
 		Object value1,
 		Object value2,
 		PropertyDescriptor property)
-		throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException
+		throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException
 	{
 		Object instance1 = ObjectBuilder.createInstance(clazz);
 		Object instance2 = ObjectBuilder.createInstance(clazz);
@@ -214,8 +221,8 @@ public class DataClassValidator
 	 * cover the various branches in hashCode(). All branches are ternary expression for a null check, so we just feed it
 	 * something or nulls.
 	 */
-	private static void validateHashCode(final Class<?> clazz) throws InstantiationException, IllegalAccessException,
-		InvocationTargetException, NoSuchMethodException
+	private static void validateHashCode(final Class<?> clazz)
+		throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException
 	{
 		PropertyDescriptor[] properties = PropertyUtils.getPropertyDescriptors(clazz);
 
@@ -240,8 +247,7 @@ public class DataClassValidator
 	 * property.
 	 */
 	private static void validateHashCode(Class<?> clazz, Object value, PropertyDescriptor property, boolean tryNull)
-		throws InstantiationException,
-		IllegalAccessException, InvocationTargetException, NoSuchMethodException
+		throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException
 	{
 		Constructor<?> constructor = clazz.getConstructor();
 		Object instance = constructor.newInstance();

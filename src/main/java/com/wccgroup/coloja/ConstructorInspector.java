@@ -37,7 +37,16 @@ public class ConstructorInspector
 		if (!Modifier.isPublic(theConstructor.getModifiers()))
 		{
 			log.debug("Making constructor of {} accessible.", clazz.getName());
-			theConstructor.setAccessible(true);
+
+			try
+			{
+				theConstructor.setAccessible(true);
+			}
+			catch (SecurityException e)
+			{
+				log.debug("Failed to set a constructor accessibility.", e);
+				return null;
+			}
 		}
 
 		return theConstructor;

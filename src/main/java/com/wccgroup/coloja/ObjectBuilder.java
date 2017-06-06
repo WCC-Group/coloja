@@ -181,6 +181,14 @@ public class ObjectBuilder
 		{
 			return LocalDate.parse("2016-01-02");
 		}
+		else if (objectType.equals(java.lang.reflect.Method.class))
+		{
+			return ObjectBuilder.class.getMethods()[0];
+		}
+		else if (objectType.equals(java.lang.Class.class))
+		{
+			return ObjectBuilder.class;
+		}
 		else
 		{
 			if (allowProxy && !Modifier.isFinal(objectType.getModifiers()))
@@ -192,22 +200,10 @@ public class ObjectBuilder
 
 			if (theConstructor == null)
 			{
-				// Think of something ourselves.
-				if (objectType.equals(java.lang.reflect.Method.class))
-				{
-					return ObjectBuilder.class.getMethods()[0];
-				}
-				else if (objectType.equals(java.lang.Class.class))
-				{
-					return ObjectBuilder.class;
-				}
-				else
-				{
-					// If you get here and feel like something is missing just above, feel free to add it.
-					fail(String.format(
-						"Tried to create an instance of %s, but it contains no usable constructors.",
-						objectType.getName()));
-				}
+				// If you get here and feel like something is missing just above, feel free to add it.
+				fail(String.format(
+					"Tried to create an instance of %s, but it contains no usable constructors.",
+					objectType.getName()));
 			}
 
 			if (theConstructor.getParameterCount() == 0)
@@ -230,7 +226,7 @@ public class ObjectBuilder
 
 				if (constructorProperties == null)
 				{
-					fail("Expected a ConstructorProperties annotation on this class.");
+					fail("Expected a ConstructorProperties annotation on " + objectType.getName());
 				}
 
 				List<Object> theParameters = new ArrayList<>();

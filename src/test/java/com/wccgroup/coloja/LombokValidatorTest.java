@@ -19,7 +19,7 @@ public class LombokValidatorTest
 		assertThat(
 			"Expect all classes to be validated",
 			classesValidated,
-			is(6));
+			is(7));
 	}
 
 	@Test

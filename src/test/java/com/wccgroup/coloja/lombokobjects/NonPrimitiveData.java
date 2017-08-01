@@ -1,7 +1,6 @@
 package com.wccgroup.coloja.lombokobjects;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import lombok.Data;
 
 @Data
@@ -11,4 +10,5 @@ public class NonPrimitiveData
 	private Object anObject;
 	private List<Object> someObjects;
 	private Map<String, Object> aMap;
+	private UUID aUUID;
 }

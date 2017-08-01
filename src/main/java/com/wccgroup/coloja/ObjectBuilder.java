@@ -173,6 +173,10 @@ public class ObjectBuilder
 		{
 			return new ArrayList();
 		}
+		else if (objectType.getName().equals("java.util.UUID"))
+		{
+			return UUID.randomUUID();
+		}
 		else if (objectType.isAssignableFrom(ZonedDateTime.class))
 		{
 			return ZonedDateTime.parse("2016-01-02T12:34:56Z");

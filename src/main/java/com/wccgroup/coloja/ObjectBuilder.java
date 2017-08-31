@@ -173,6 +173,10 @@ public class ObjectBuilder
 		{
 			return new ArrayList();
 		}
+		else if (objectType.getName().startsWith("java.util.Set"))
+		{
+			return new HashSet();
+		}
 		else if (objectType.getName().equals("java.util.UUID"))
 		{
 			return UUID.randomUUID();

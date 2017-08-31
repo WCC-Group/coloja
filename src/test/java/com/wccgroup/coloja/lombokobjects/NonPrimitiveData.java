@@ -11,4 +11,5 @@ public class NonPrimitiveData
 	private List<Object> someObjects;
 	private Map<String, Object> aMap;
 	private UUID aUUID;
+	private Set<String> aSet;
 }

@@ -34,6 +34,7 @@ public class LombokValidator
 	 * An assertion failure will trigger when no objects are found.
 	 *
 	 * @param namespacePrefix The root namespace from where to start looking for lombok annotated objects.
+	 * @param options         Options for the validation, use to for example exclude a specific method.
 	 * @return A list of all Classes that have been processed.
 	 */
 	public static List<Class> autoValidate(String namespacePrefix, ValidatorOptions options)
@@ -97,8 +98,9 @@ public class LombokValidator
 	}
 
 	/**
-	 * @param clazz The class to validate. It will both trigger the coverage generator as well as doing some validation on the
-	 *              object itself.
+	 * @param clazz   The class to validate. It will both trigger the coverage generator as well as doing some validation on the
+	 *                object itself.
+	 * @param options Options for the validation, use to for example exclude a specific method.
 	 * @throws InvocationTargetException thrown when the validation fails
 	 * @throws NoSuchMethodException     thrown when the validation fails
 	 * @throws InstantiationException    thrown when the validation fails
@@ -118,5 +120,4 @@ public class LombokValidator
 			DataClassValidator.validate(clazz, options);
 		}
 	}
-
 }

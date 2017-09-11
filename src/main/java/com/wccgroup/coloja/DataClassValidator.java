@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DataClassValidator
 {
-	public static void validate(Class<?> clazz)
+	public static void validate(Class<?> clazz, ValidatorOptions options)
 	{
 		try
 		{
@@ -25,7 +25,7 @@ public class DataClassValidator
 			Constructor<?> constructor = clazz.getConstructor();
 			Object instance = constructor.newInstance();
 
-			validateFromMethods(clazz, instance);
+			validateFromMethods(clazz, instance, options);
 			validateFromProperties(clazz, instance);
 		}
 		catch (Exception e)
@@ -38,7 +38,7 @@ public class DataClassValidator
 	 * Method based validation. Look at the methods and figure out if we recognize all of the. Do further validation
 	 * on a few special ones.
 	 */
-	private static void validateFromMethods(Class<?> clazz, Object instance)
+	private static void validateFromMethods(Class<?> clazz, Object instance, ValidatorOptions options)
 		throws InvocationTargetException, IllegalAccessException, InstantiationException, NoSuchMethodException
 	{
 		for (Method method : clazz.getDeclaredMethods())
@@ -87,7 +87,20 @@ public class DataClassValidator
 			}
 			else
 			{
-				fail("Unexpected method " + method.getName());
+				boolean shouldBeIgnored = false;
+
+				for (IgnorableMethod ignorableMethod : options.getIgnorableMethods())
+				{
+					if (clazz.equals(ignorableMethod.getClazz()) && method.getName().equals(ignorableMethod.getMethod()))
+					{
+						shouldBeIgnored = true;
+					}
+				}
+
+				if (!shouldBeIgnored)
+				{
+					fail("Unexpected method " + method.getName());
+				}
 			}
 		}
 	}
@@ -287,5 +300,4 @@ public class DataClassValidator
 			c.newInstance(parameterValues.toArray(new Object[1]));
 		}
 	}
-
 }

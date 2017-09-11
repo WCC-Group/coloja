@@ -14,7 +14,7 @@ import org.mockito.Mockito;
 
 public class ValueClassValidator
 {
-	public static void validate(Class<?> clazz)
+	public static void validate(Class<?> clazz, ValidatorOptions options)
 	{
 		try
 		{
@@ -22,8 +22,8 @@ public class ValueClassValidator
 			invokeAllArgsConstructor(clazz);
 
 			Object instance = ObjectBuilder.createInstance(clazz);
-			validateFromMethods(clazz, instance);
-			validateFromFields(clazz);
+			validateFromMethods(clazz, instance, options);
+			validateFromFields(clazz, options);
 		}
 		catch (Exception e)
 		{
@@ -31,7 +31,7 @@ public class ValueClassValidator
 		}
 	}
 
-	private static void validateFromMethods(Class<?> clazz, Object instance)
+	private static void validateFromMethods(Class<?> clazz, Object instance, ValidatorOptions options)
 		throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException
 	{
 		// Direct method based checks. Only allow recognized methods.
@@ -80,12 +80,25 @@ public class ValueClassValidator
 			}
 			else
 			{
-				fail("Unexpected method " + method.getName());
+				boolean shouldBeIgnored = false;
+
+				for (IgnorableMethod ignorableMethod : options.getIgnorableMethods())
+				{
+					if (clazz.equals(ignorableMethod.getClazz()) && method.getName().equals(ignorableMethod.getMethod()))
+					{
+						shouldBeIgnored = true;
+					}
+				}
+
+				if (!shouldBeIgnored)
+				{
+					fail("Unexpected method " + method.getName());
+				}
 			}
 		}
 	}
 
-	private static void validateFromFields(Class<?> clazz)
+	private static void validateFromFields(Class<?> clazz, ValidatorOptions options)
 		throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException
 	{
 		// We're testing a lombok object, so make use of a high level commons-beanutils to intepret the fields as properties and
@@ -119,6 +132,13 @@ public class ValueClassValidator
 		for (PropertyDescriptor property : properties)
 		{
 			if (SpecialMembers.CLASS.equals(property.getName()))
+			{
+				continue;
+			}
+
+			if (options.getIgnorableProperties().stream()
+				.anyMatch(ignorableProperty -> clazz.equals(ignorableProperty.getClazz()) && property.getName()
+					.equals(ignorableProperty.getProperty())))
 			{
 				continue;
 			}
@@ -286,5 +306,4 @@ public class ValueClassValidator
 			c.newInstance(parameterValues.toArray(new Object[1]));
 		}
 	}
-
 }

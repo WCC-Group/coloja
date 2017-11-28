@@ -60,7 +60,7 @@ public class ValueClassValidator
 			}
 			else if (SpecialMembers.EQUALS_METHOD.equals(method.getName()))
 			{
-				validateEquals(clazz);
+				validateEquals(clazz, options);
 			}
 			else if (SpecialMembers.JACOCO_HELPER_METHOD.equals(method.getName()))
 			{
@@ -152,7 +152,7 @@ public class ValueClassValidator
 		}
 	}
 
-	private static void validateEquals(Class<?> clazz)
+	private static void validateEquals(Class<?> clazz, ValidatorOptions options)
 		throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException
 	{
 		Constructor theConstructor = ConstructorInspector.getBestConstructor(clazz);
@@ -171,11 +171,11 @@ public class ValueClassValidator
 
 		trivialEqualsChecks(theConstructor, argumentList1);
 
-		singleFieldDifferenceChecks(theConstructor, parameterTypes, argumentList1, argumentList2);
+		singleFieldDifferenceChecks(theConstructor, parameterTypes, argumentList1, argumentList2, options);
 
-		singleNullFieldChecks(theConstructor, parameterTypes, argumentList1);
+		singleNullFieldChecks(theConstructor, parameterTypes, argumentList1, options);
 
-		symmetricalNullChecks(theConstructor, parameterTypes, argumentList1);
+		symmetricalNullChecks(theConstructor, parameterTypes, argumentList1, options);
 
 		subclassCheck(clazz, theConstructor, argumentList1);
 	}
@@ -197,12 +197,28 @@ public class ValueClassValidator
 		assertThat(anInstance.equals(mockedSubclass), is(false));
 	}
 
-	private static void symmetricalNullChecks(Constructor theConstructor, Class<?>[] parameterTypes, Object[] argumentList1)
+	private static void symmetricalNullChecks(
+		Constructor theConstructor,
+		Class<?>[] parameterTypes,
+		Object[] argumentList1,
+		ValidatorOptions options)
 		throws InstantiationException, IllegalAccessException, InvocationTargetException
 	{
+		ConstructorProperties constructorProperties =
+			(ConstructorProperties)theConstructor.getAnnotation(ConstructorProperties.class);
+		String[] constructorPropertyNames = constructorProperties.value();
+
 		// Identical argument lists with a single shared entry set to null.
 		for (int i = 0; i < parameterTypes.length; i++)
 		{
+			final String constructorPropertyName = constructorPropertyNames[i];
+
+			if (options.getIgnorableProperties().stream()
+				.anyMatch(ignorableProperty -> ignorableProperty.getProperty().equals(constructorPropertyName)))
+			{
+				continue;
+			}
+
 			Object[] argumentList3 = new Object[parameterTypes.length];
 			Object[] argumentList4 = new Object[parameterTypes.length];
 
@@ -221,12 +237,28 @@ public class ValueClassValidator
 		}
 	}
 
-	private static void singleNullFieldChecks(Constructor theConstructor, Class<?>[] parameterTypes, Object[] argumentList1)
+	private static void singleNullFieldChecks(
+		Constructor theConstructor,
+		Class<?>[] parameterTypes,
+		Object[] argumentList1,
+		ValidatorOptions options)
 		throws InstantiationException, IllegalAccessException, InvocationTargetException
 	{
+		ConstructorProperties constructorProperties =
+			(ConstructorProperties)theConstructor.getAnnotation(ConstructorProperties.class);
+		String[] constructorPropertyNames = constructorProperties.value();
+
 		// One of the fields null, equals should always be false (our own fields are non-null).
 		for (int i = 0; i < parameterTypes.length; i++)
 		{
+			final String constructorPropertyName = constructorPropertyNames[i];
+
+			if (options.getIgnorableProperties().stream()
+				.anyMatch(ignorableProperty -> ignorableProperty.getProperty().equals(constructorPropertyName)))
+			{
+				continue;
+			}
+
 			Object[] argumentList3 = new Object[parameterTypes.length];
 			Object[] argumentList4 = new Object[parameterTypes.length];
 
@@ -249,11 +281,24 @@ public class ValueClassValidator
 		Constructor theConstructor,
 		Class<?>[] parameterTypes,
 		Object[] argumentList1,
-		Object[] argumentList2) throws InstantiationException, IllegalAccessException, InvocationTargetException
+		Object[] argumentList2,
+		ValidatorOptions options) throws InstantiationException, IllegalAccessException, InvocationTargetException
 	{
+		ConstructorProperties constructorProperties =
+			(ConstructorProperties)theConstructor.getAnnotation(ConstructorProperties.class);
+		String[] constructorPropertyNames = constructorProperties.value();
+
 		// Single field difference: expect same outcome as equals just on that field.
 		for (int i = 0; i < parameterTypes.length; i++)
 		{
+			final String constructorPropertyName = constructorPropertyNames[i];
+
+			if (options.getIgnorableProperties().stream()
+				.anyMatch(ignorableProperty -> ignorableProperty.getProperty().equals(constructorPropertyName)))
+			{
+				continue;
+			}
+
 			Object[] argumentList3 = new Object[parameterTypes.length];
 			Object[] argumentList4 = new Object[parameterTypes.length];
 

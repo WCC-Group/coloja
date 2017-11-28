@@ -67,7 +67,7 @@ public class DataClassValidator
 			}
 			else if (SpecialMembers.EQUALS_METHOD.equals(method.getName()))
 			{
-				validateEquals(clazz);
+				validateEquals(clazz, options);
 			}
 			else if (SpecialMembers.JACOCO_HELPER_METHOD.equals(method.getName()))
 			{
@@ -139,7 +139,7 @@ public class DataClassValidator
 	/**
 	 * Test all properties, making sure that the .equals behavior is correct.
 	 */
-	private static void validateEquals(final Class<?> clazz)
+	private static void validateEquals(final Class<?> clazz, ValidatorOptions options)
 		throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException
 	{
 		PropertyDescriptor[] properties = PropertyUtils.getPropertyDescriptors(clazz);
@@ -155,6 +155,7 @@ public class DataClassValidator
 
 			validateEquals(
 				clazz,
+				options,
 				ObjectBuilder.createValue(propertyType, ObjectBuilder.ValueSet.SET1),
 				ObjectBuilder.createValue(propertyType, ObjectBuilder.ValueSet.SET2),
 				property);
@@ -168,11 +169,19 @@ public class DataClassValidator
 	 */
 	private static void validateEquals(
 		Class<?> clazz,
+		ValidatorOptions options,
 		Object value1,
 		Object value2,
 		PropertyDescriptor property)
 		throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException
 	{
+		if (options.getIgnorableProperties().stream()
+			.anyMatch(p -> p.getClazz().equals(clazz) && property.getName().equals(p.getProperty())
+			))
+		{
+			return;
+		}
+
 		Object instance1 = ObjectBuilder.createInstance(clazz);
 		Object instance2 = ObjectBuilder.createInstance(clazz);
 
@@ -189,36 +198,37 @@ public class DataClassValidator
 			// null <--> null
 			property.getWriteMethod().invoke(instance1, nullValue);
 			property.getWriteMethod().invoke(instance2, nullValue);
-			assertThat(instance1.equals(instance2), is(true));
-			assertThat(instance2.equals(instance1), is(true));
+			assertThat(explainEquals(clazz, nullValue, nullValue, property, true), instance1.equals(instance2), is(true));
+			assertThat(explainEquals(clazz, nullValue, nullValue, property, true), instance2.equals(instance1), is(true));
 
 			// something <--> null
 			boolean expected = value2.equals(nullValue);
 			property.getWriteMethod().invoke(instance1, nullValue);
 			property.getWriteMethod().invoke(instance2, value2);
-			assertThat(instance1.equals(instance2), is(expected));
-			assertThat(instance2.equals(instance1), is(expected));
+
+			assertThat(explainEquals(clazz, nullValue, value2, property, expected), instance1.equals(instance2), is(expected));
+			assertThat(explainEquals(clazz, value2, nullValue, property, expected), instance2.equals(instance1), is(expected));
 
 			// null <--> something
 			expected = value1.equals(nullValue);
 			property.getWriteMethod().invoke(instance1, value1);
 			property.getWriteMethod().invoke(instance2, nullValue);
-			assertThat(instance1.equals(instance2), is(expected));
-			assertThat(instance2.equals(instance1), is(expected));
+			assertThat(explainEquals(clazz, nullValue, value1, property, expected), instance1.equals(instance2), is(expected));
+			assertThat(explainEquals(clazz, value1, nullValue, property, expected), instance2.equals(instance1), is(expected));
 
 			// something <--> something
 			expected = value2.equals(value2); // NOSONAR
 			property.getWriteMethod().invoke(instance1, value2);
 			property.getWriteMethod().invoke(instance2, value2);
-			assertThat(instance1.equals(instance2), is(expected));
-			assertThat(instance2.equals(instance1), is(expected));
+			assertThat(explainEquals(clazz, value2, value2, property, expected), instance1.equals(instance2), is(expected));
+			assertThat(explainEquals(clazz, value2, value2, property, expected), instance2.equals(instance1), is(expected));
 
 			// something <--> something else
 			expected = value1.equals(value2);
 			property.getWriteMethod().invoke(instance1, value1);
 			property.getWriteMethod().invoke(instance2, value2);
-			assertThat(instance1.equals(instance2), is(expected));
-			assertThat(instance2.equals(instance1), is(expected));
+			assertThat(explainEquals(clazz, value2, value1, property, expected), instance1.equals(instance2), is(expected));
+			assertThat(explainEquals(clazz, value1, value2, property, expected), instance2.equals(instance1), is(expected));
 		}
 
 		// We really have to mock here, this tests if the other one is a subclass.
@@ -227,6 +237,30 @@ public class DataClassValidator
 		canEqual.setAccessible(true);
 		Mockito.when(canEqual.invoke(x, new Object[] { ArgumentMatchers.any() })).thenReturn(false);
 		assertThat(instance1.equals(x), is(false));
+	}
+
+	private static String explainEquals(
+		Class<?> clazz,
+		Object value1,
+		Object value2,
+		PropertyDescriptor property,
+		boolean expectation)
+	{
+		StringBuilder builder = new StringBuilder();
+
+		builder.append("Comparing two instances of ");
+		builder.append(clazz.toString());
+		builder.append(" with the property '");
+		builder.append(property.getName());
+		builder.append("' set to values '");
+		builder.append(value1);
+		builder.append("' and '");
+		builder.append(value2);
+		builder.append("' and expecting them to be ");
+		builder.append(expectation ? " equal" : "not equal");
+		builder.append(".");
+
+		return builder.toString();
 	}
 
 	/**

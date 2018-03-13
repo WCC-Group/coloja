@@ -3,7 +3,7 @@ package com.wccgroup.coloja;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
-import java.lang.reflect.InvocationTargetException;
+import java.time.*;
 import java.util.Arrays;
 import org.junit.Test;
 
@@ -21,7 +21,8 @@ public class ObjectBuilderTest
 			long.class, Long.class,
 			float.class, Float.class,
 			double.class, Double.class,
-			String.class))
+			String.class,
+			LocalDate.class, LocalTime.class, ZonedDateTime.class))
 		{
 			assertThat(
 				"Expect non null value for " + clazz.getName(),
@@ -46,7 +47,8 @@ public class ObjectBuilderTest
 			long.class, Long.class,
 			float.class, Float.class,
 			double.class, Double.class,
-			String.class))
+			String.class,
+			LocalDate.class, LocalTime.class, ZonedDateTime.class))
 		{
 			Object value1 = ObjectBuilder.createValue(clazz, ObjectBuilder.ValueSet.SET1);
 			Object value2 = ObjectBuilder.createValue(clazz, ObjectBuilder.ValueSet.SET2);

@@ -3,8 +3,7 @@ package com.wccgroup.coloja;
 import static org.junit.Assert.fail;
 import java.beans.ConstructorProperties;
 import java.lang.reflect.*;
-import java.time.LocalDate;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.*;
 import org.mockito.Mockito;
 import lombok.extern.slf4j.Slf4j;
@@ -93,6 +92,18 @@ public class ObjectBuilder
 			return valueSet.equals(ValueSet.SET1) ?
 				ZonedDateTime.parse("2016-01-02T12:34:56Z") :
 				ZonedDateTime.parse("1999-12-31T12:34:56Z");
+		}
+		else if (propertyType.isAssignableFrom(LocalDate.class))
+		{
+			return valueSet.equals(ValueSet.SET1) ?
+				LocalDate.parse("2016-01-02") :
+				LocalDate.parse("1999-12-31");
+		}
+		else if (propertyType.isAssignableFrom(LocalTime.class))
+		{
+			return valueSet.equals(ValueSet.SET1) ?
+				LocalTime.parse("12:34:56") :
+				LocalTime.parse("12:00:00");
 		}
 		else
 		{
@@ -188,6 +199,10 @@ public class ObjectBuilder
 		else if (objectType.isAssignableFrom(LocalDate.class))
 		{
 			return LocalDate.parse("2016-01-02");
+		}
+		else if (objectType.isAssignableFrom(LocalTime.class))
+		{
+			return LocalTime.parse("12:34:56");
 		}
 		else if (objectType.equals(java.lang.reflect.Method.class))
 		{

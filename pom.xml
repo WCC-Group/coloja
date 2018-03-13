@@ -4,7 +4,7 @@
 
 	<groupId>com.wcc-group</groupId>
 	<artifactId>coloja</artifactId>
-	<version>0.7-SNAPSHOT</version>
+	<version>0.8</version>
 
 	<packaging>jar</packaging>
 

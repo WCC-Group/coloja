@@ -35,7 +35,7 @@ public class DataClassValidator
 	}
 
 	/**
-	 * Method based validation. Look at the methods and figure out if we recognize all of the. Do further validation
+	 * Method based validation. Look at the methods and figure out if we recognize all of them. Do further validation
 	 * on a few special ones.
 	 */
 	private static void validateFromMethods(Class<?> clazz, Object instance, ValidatorOptions options)
